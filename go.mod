@@ -1,4 +1,4 @@
-module forum_application
+module github.com/RomuloRamos/forum_application
 
 go 1.22.6
 
