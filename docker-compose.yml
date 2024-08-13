@@ -1,0 +1,69 @@
+services:
+  # it's here where you define different services that will run on different docker containers, for work together with docker compose
+  db:
+    container_name: forum_db
+    image: postgres:latest
+    restart: unless-stopped
+    ports:
+      - ${MYDEV_DATABASE_PORT}:5432
+    environment:
+      POSTGRES_USER: ${MYDEV_DATABASE_USER}
+      POSTGRES_PASSWORD: ${MYDEV_DATABASE_PASSWORD}
+      POSTGRES_DB: ${MYDEV_DATABASE_NAME}
+    volumes:
+      #linking the volume defined bellow
+      - db_volume:/var/lib/postgresql/data # name_of_volume: #what_should_be_saved
+    networks:
+      - worknetwork
+
+  db_client_pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - 8081:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${MYDEV_PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${MYDEV_PGADMIN_PASSWORD}
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - worknetwork
+
+  dev:
+    container_name: forum_app_dev
+    build:
+      dockerfile: Dockerfile
+      args:
+        USER_UID: ${UID}
+        USER_GID: ${GID}
+        USERNAME: ${USER}
+    volumes:
+      - .:/home/app_dir
+    command: sleep infinity
+    user: "${UID}:${GID}"
+    networks:
+      - worknetwork
+
+volumes:
+  # it's here that you define where the data from your container should be saved, for non-volatile uses
+  db_volume:
+    name: db_volume
+    driver: local
+    driver_opts:
+      type: none
+      device: ./.volumes/db
+      o: bind
+  pgadmin:
+    name: pgadmin_data
+    driver: local
+    driver_opts:
+      type: none
+      device: ./.volumes/pgadmin
+      o: bind
+
+networks:
+  worknetwork:
+    driver: bridge
