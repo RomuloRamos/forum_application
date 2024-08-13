@@ -1,0 +1,21 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/go
+{
+	"name": "forum_application",
+	"dockerComposeFile": "../docker-compose.yml",
+	"service": "dev",
+	"workspaceFolder": "/home/app_dir",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-azuretools.vscode-docker",
+				"golang.Go",
+				"ckolkman.vscode-postgres"
+			]
+		}
+	},
+	"runArgs": [
+		"--network=host"
+	],
+	"remoteUser": "${env:USER}"
+}
